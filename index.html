@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>THE GHOST OF THE UCHIHA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+      html, body { width: 100%; height: 100%; margin: 0; padding: 0; background: #000; overflow: hidden; font-family: 'Rajdhani', sans-serif; cursor: crosshair; }
+      #root { width: 100%; height: 100%; }
+      /* Custom Scrollbar hide */
+      ::-webkit-scrollbar { width: 0px; background: transparent; }
+      
+      /* Kamui Cursor Effect */
+      .kamui-cursor {
+        position: fixed;
+        width: 40px;
+        height: 40px;
+        border: 2px solid rgba(255, 69, 0, 0.5);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        z-index: 9999;
+        transition: width 0.2s, height 0.2s, background-color 0.2s;
+        mix-blend-mode: difference;
+      }
+      .kamui-cursor.active {
+        width: 60px;
+        height: 60px;
+        background-color: rgba(255, 69, 0, 0.1);
+        border-color: #ff4500;
+      }
+
+      /* Glitch Keyframes */
+      @keyframes glitch-anim-1 {
+        0% { clip-path: inset(20% 0 80% 0); transform: translate(-2px, 1px); }
+        20% { clip-path: inset(60% 0 10% 0); transform: translate(2px, -1px); }
+        40% { clip-path: inset(40% 0 50% 0); transform: translate(-2px, 2px); }
+        60% { clip-path: inset(80% 0 5% 0); transform: translate(2px, -2px); }
+        80% { clip-path: inset(10% 0 70% 0); transform: translate(-1px, 1px); }
+        100% { clip-path: inset(30% 0 50% 0); transform: translate(1px, -1px); }
+      }
+      @keyframes glitch-anim-2 {
+        0% { clip-path: inset(10% 0 60% 0); transform: translate(2px, -1px); }
+        20% { clip-path: inset(80% 0 5% 0); transform: translate(-2px, 2px); }
+        40% { clip-path: inset(30% 0 20% 0); transform: translate(2px, 1px); }
+        60% { clip-path: inset(10% 0 80% 0); transform: translate(-1px, -2px); }
+        80% { clip-path: inset(50% 0 30% 0); transform: translate(1px, 2px); }
+        100% { clip-path: inset(20% 0 60% 0); transform: translate(-2px, 1px); }
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react/": "https://esm.sh/react@18.2.0/",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "react-dom": "https://esm.sh/react-dom@18.2.0",
+    "react-dom/": "https://esm.sh/react-dom@18.2.0/",
+    "three": "https://esm.sh/three@0.160.0",
+    "@react-three/fiber": "https://esm.sh/@react-three/fiber@8.15.16?external=react,react-dom,three",
+    "@react-three/drei": "https://esm.sh/@react-three/drei@9.99.0?external=react,react-dom,three,@react-three/fiber",
+    "@react-three/postprocessing": "https://esm.sh/@react-three/postprocessing@2.16.0?external=react,react-dom,three,@react-three/fiber"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+    <div id="cursor" class="kamui-cursor"></div>
+    <script>
+      const cursor = document.getElementById('cursor');
+      document.addEventListener('mousemove', (e) => {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+      });
+      document.addEventListener('mousedown', () => cursor.classList.add('active'));
+      document.addEventListener('mouseup', () => cursor.classList.remove('active'));
+    </script>
+  </body>
+</html>
