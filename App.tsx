@@ -13,24 +13,27 @@ const SceneDirector: React.FC<{ setPersona: (p: Persona) => void }> = ({ setPers
   const { camera } = useThree();
 
   useFrame(() => {
+    // Safety check: scroll.offset might be undefined on the very first frame
+    const offset = scroll?.offset ?? 0;
+
     // Scroll offset is 0 to 1
     // Zone 1: Tobi (0 - 0.33)
-    if (scroll.offset < 0.30) {
+    if (offset < 0.30) {
       setPersona(Persona.TOBI);
-      camera.position.z = THREE.MathUtils.lerp(6, 5, scroll.offset * 3);
-      camera.position.y = THREE.MathUtils.lerp(0, 0, scroll.offset * 3);
+      camera.position.z = THREE.MathUtils.lerp(6, 5, offset * 3);
+      camera.position.y = THREE.MathUtils.lerp(0, 0, offset * 3);
     }
     // Zone 2: War Arc (0.33 - 0.66)
-    else if (scroll.offset >= 0.30 && scroll.offset < 0.60) {
+    else if (offset >= 0.30 && offset < 0.60) {
       setPersona(Persona.WAR_ARC);
-      const relativeOffset = (scroll.offset - 0.30) * 3.3; 
+      const relativeOffset = (offset - 0.30) * 3.3; 
       camera.position.z = THREE.MathUtils.lerp(5, 7, relativeOffset);
       camera.position.y = THREE.MathUtils.lerp(0, 0.5, relativeOffset);
     }
     // Zone 3: God (0.66 - 1.0)
     else {
       setPersona(Persona.JINCHURIKI);
-      const relativeOffset = (scroll.offset - 0.60) * 2.5;
+      const relativeOffset = (offset - 0.60) * 2.5;
       camera.position.z = THREE.MathUtils.lerp(7, 4, relativeOffset);
       camera.position.y = THREE.MathUtils.lerp(0.5, 0, relativeOffset);
     }
@@ -80,11 +83,27 @@ const Section: React.FC<{
 
   useFrame(() => {
     if (!ref.current) return;
+    const offset = scroll?.offset ?? 0;
+    
+    // We use scroll.range manually since it might be internal, but raw calculation is safer
+    // The previous scroll.range() usage is fine if available, but let's be robust
+    // 3 pages total. Each page is 1/3 of the scroll.
     const pageHeight = 1 / 3;
-    const start = pageIndex * pageHeight;
-    const visibleRange = scroll.range(start, pageHeight);
-    ref.current.style.opacity = `${visibleRange}`;
-    ref.current.style.transform = `translateY(${(1 - visibleRange) * 50}px)`;
+    const pageStart = pageIndex * pageHeight;
+    const pageEnd = pageStart + pageHeight;
+
+    // Calculate visibility triangle manually to be safe
+    // 0 -> 1 -> 0
+    let alpha = 0;
+    if (offset >= pageStart && offset <= pageEnd) {
+       // Normalized progress within this page (0 to 1)
+       const progress = (offset - pageStart) / pageHeight;
+       // Sine wave for fade in/out: sin(0) -> sin(PI)
+       alpha = Math.sin(progress * Math.PI);
+    }
+    
+    ref.current.style.opacity = `${alpha}`;
+    ref.current.style.transform = `translateY(${(1 - alpha) * 30}px)`;
   });
 
   const alignClass = 
@@ -94,7 +113,7 @@ const Section: React.FC<{
 
   return (
     <section className={`w-full h-[100vh] flex flex-col justify-center p-6 md:p-20 relative pointer-events-none ${alignClass}`}>
-      <div ref={ref} className="transition-transform duration-100 ease-out pointer-events-auto">
+      <div ref={ref} className="transition-transform duration-100 ease-out pointer-events-auto opacity-0">
         {children}
       </div>
     </section>
@@ -132,7 +151,7 @@ export default function App() {
 
   return (
     <div className="w-full h-full bg-black relative">
-      <Canvas shadows camera={{ position: [0, 0, 6], fov: 35 }}>
+      <Canvas shadows camera={{ position: [0, 0, 6], fov: 35 }} gl={{ antialias: false, stencil: false, depth: true, alpha: false }}>
         <Suspense fallback={null}>
           <ScrollControls pages={3} damping={0.2}>
             <Experience persona={persona} setPersona={setPersona} />
